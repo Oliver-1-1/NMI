@@ -21,15 +21,15 @@ NTSTATUS NmiDisable(PVOID ntoskrnl) {
         MM_COPY_ADDRESS address;
         address.VirtualAddress = (void*)KiNmiInProgress;
 
-        if (!NT_SUCCESS(MmCopyMemory(&dummy, address, sizeof(unsigned char), MM_COPY_MEMORY_VIRTUAL, &read))) return STATUS_UNSUCCESSFUL;
+        if (!NT_SUCCESS(MmCopyMemory(&dummy, address, sizeof(UCHAR), MM_COPY_MEMORY_VIRTUAL, &read))) return STATUS_UNSUCCESSFUL;
         
         while (dummy != 0x48){
             ++KiNmiInProgress;
             address.VirtualAddress = (void*)KiNmiInProgress;
-            if (!NT_SUCCESS(MmCopyMemory(&dummy, address, sizeof(unsigned char), MM_COPY_MEMORY_VIRTUAL, &read))) return STATUS_UNSUCCESSFUL;
+            if (!NT_SUCCESS(MmCopyMemory(&dummy, address, sizeof(UCHAR), MM_COPY_MEMORY_VIRTUAL, &read))) return STATUS_UNSUCCESSFUL;
         }
 
-        KiNmiInProgress = reinterpret_cast<unsigned char*>(util::ResolveRelativeAddress(KiNmiInProgress, 3, 7));
+        KiNmiInProgress = reinterpret_cast<PUCHAR>(util::ResolveRelativeAddress(KiNmiInProgress, 3, 7));
 
         for (int i = 0; i < KeQueryActiveProcessorCountEx(0); i++){
             KeInterlockedSetProcessorAffinityEx((PKAFFINITY_EX)KiNmiInProgress, i);
